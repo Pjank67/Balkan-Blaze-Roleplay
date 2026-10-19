@@ -1,0 +1,129 @@
+# Render Blueprint — https://render.com/docs/blueprint-spec
+# Njime Render sam napravi Web Service sa svim podešavanjima.
+# Posle kreiranja popuni Environment promenljive u Render dashboardu.
+services:
+  - type: web
+    name: blaze-roleplay-bot
+    runtime: node
+    plan: free
+    region: frankfurt # najbliže Srbiji
+    branch: main
+    buildCommand: npm install
+    startCommand: npm start
+    healthCheckPath: /health
+    autoDeploy: true
+    envVars:
+      - key: NODE_VERSION
+        value: "20"
+
+      # --- Obavezno ---
+      - key: DISCORD_TOKEN
+        sync: false
+      - key: CLIENT_ID
+        sync: false
+      - key: GUILD_ID
+        sync: false
+      - key: SERVER_NAME
+        value: "Blaze Roleplay"
+      - key: TICKET_CATEGORY_ID
+        sync: false
+      - key: STAFF_ROLE_ID
+        sync: false
+
+      # --- Whitelist / verifikacija ---
+      - key: VERIFY_ROLE_ID
+        sync: false
+      - key: APPLY_ROLE_ID
+        sync: false
+      - key: APPLY_CATEGORY_ID
+        sync: false
+      - key: APPLY_PANEL_CHANNEL_ID
+        sync: false
+      - key: APPLY_LOG_CHANNEL_ID
+        sync: false
+      - key: VERIFY_CHANNEL_ID
+        sync: false
+
+      # --- Kanali ---
+      - key: WELCOME_CHANNEL_ID
+        sync: false
+      - key: GOODBYE_CHANNEL_ID
+        sync: false
+      - key: RULES_CHANNEL_ID
+        sync: false
+      - key: TICKET_PANEL_CHANNEL_ID
+        sync: false
+      - key: TICKET_LOG_CHANNEL_ID
+        sync: false
+      - key: SUGGESTION_CHANNEL_ID
+        sync: false
+      - key: ANNOUNCEMENT_CHANNEL_ID
+        sync: false
+      - key: MOD_LOG_CHANNEL_ID
+        sync: false
+      - key: AUTOMOD_LOG_CHANNEL_ID
+        sync: false
+      - key: LOG_CHANNEL_ID
+        sync: false
+      - key: JOIN_LOG_CHANNEL_ID
+        sync: false
+      - key: STATUS_CHANNEL_ID
+        sync: false
+      - key: TEMP_VOICE_CHANNEL_ID
+        sync: false
+
+      # --- Role ---
+      - key: AUTO_ROLE_ID
+        sync: false
+      - key: UNVERIFIED_ROLE_ID
+        sync: false
+
+      # --- FiveM ---
+      - key: FIVEM_HOST
+        sync: false
+      - key: FIVEM_PORT
+        value: "30120"
+      - key: FIVEM_CONNECT
+        sync: false
+
+      # --- Opcije ---
+      - key: WELCOME_DM
+        value: "false"
+      - key: WELCOME_BANNER_URL
+        sync: false
+      - key: REGISTER_COMMANDS_ON_START
+        value: "true"
+      - key: ENABLE_MESSAGE_CONTENT
+        value: "false"
+
+      # --- Automod ---
+      - key: AUTOMOD_ENABLED
+        value: "true"
+      - key: AUTOMOD_INVITES
+        value: "true"
+      - key: AUTOMOD_LINKS
+        value: "true"
+      - key: AUTOMOD_SPAM
+        value: "true"
+      - key: AUTOMOD_DUPLICATES
+        value: "true"
+      - key: AUTOMOD_MENTIONS
+        value: "true"
+      - key: AUTOMOD_EVERYONE_PING
+        value: "true"
+      - key: AUTOMOD_EMOJIS
+        value: "true"
+      - key: AUTOMOD_NEWLINES
+        value: "true"
+      - key: AUTOMOD_REPEATED
+        value: "true"
+      - key: AUTOMOD_ZALGO
+        value: "true"
+      - key: AUTOMOD_CAPS
+        value: "true"
+      - key: AUTOMOD_BADWORDS
+        value: "true"
+      - key: AUTOMOD_RAID
+        value: "true"
+      - key: AUTOMOD_BYPASS_STAFF
+        value: "true"
