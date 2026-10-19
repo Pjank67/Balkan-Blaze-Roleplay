@@ -15,72 +15,70 @@
 
 ## 1️⃣ Šta `/setup-server` napravi
 
-### 📁 Kategorije i kanali (19)
+### 📁 Kategorije (9) i kanali (44) — Discord stil sa emoji
 
 ```
-📢 OBAVEŠTENJA
-├── #dobrodoslica      (read-only, bot piše dobrodošlice)
-├── #pravila           (read-only)
-├── #objave            (read-only, /objava)
-└── #odlasci           (read-only)
+📢┃OBAVEŠTENJA
+  👋・dobrodosli          📋・pravila           📢・objave
+  🔄・update-log          🟢・server-status     🔌・kako-se-povezati
+  ❓・faq
 
-🔥 BLAZE
-├── #status-servera    (read-only, live FiveM status)
-├── #kako-se-povezati  (read-only, /ip)
-└── #sugestije         (read-only, panel sa formom)
+✅┃VERIFIKACIJA
+  🛡️・verifikacija        🎭・role              📝・prijava-departmana
 
-🛡️ ZAJEDNICA
-├── #verifikacija      (read-only, panel sa pravilima)
-├── #whitelist-prijava (read-only, panel za prijave)
-├── #role              (read-only, role meni)
-├── #opsti-caskanje    (svi pišu)
-└── #mediji            (svi pišu)
+🏙️┃GRAD
+  🚀・kako-poceti         ⚖️・pravila-rp        ⌨️・komande
+  📍・lokacije            💰・ekonomija         🕶️・organizacije
 
-🎫 PODRŠKA       ← kategorija za tiket kanale
-└── #tiket-panel       (read-only, meni sa 6 kategorija)
+💬┃ZAJEDNICA
+  💬・opsti-caskanje      🎬・rp-caskanje       📸・mediji
+  😂・memes               🏷️・oglasi            🧑‍🤝‍🧑・trazenje-ekipe
+  💡・predlozi
 
-📝 PRIJAVE       ← kategorija za prijava kanale
+👮┃DEPARTMANI
+  🚔・lspd-obavestenja    👮・lspd-caskanje     🚨・ems-obavestenja
+  🚑・ems-caskanje        🔧・mehanicari        📰・novinari
 
-📋 LOGOVI        (samo staff vidi)
-├── #transkripti
-├── #mod-log
-└── #message-log
+🎫┃PODRŠKA
+  🎫・tiket-panel         📖・podrska-info
 
-🔊 GLASOVNI
-├── ➕ Napravi sobu    (temp sobe)
-├── 🎮 Gaming
-└── 💬 RP soba
+📝┃PRIJAVE                (bot pravi prijava kanale)
+
+📋┃LOGOVI
+  🛡️・mod-log             🤖・automod-log       🗑️・message-log
+  📥・join-log            📄・transkripti
+
+🔊┃GLASOVNI
+  🔊 Opšti 1   🔊 Opšti 2   🎭 RP soba 1   🎭 RP soba 2
+  🎮 Gaming    🎵 Muzika    💤 AFK         ➕ Napravi sobu
 ```
 
-### 🎭 Role (10, od najniže ka najvišoj)
+> **Zašto emoji u imenima?** Tako rade veliki serveri (Vortex, Eclipse...) — kanali su vizuelno prepoznatljivi, lakše se skeniraju i deluju „premium". Discord emoji u imenima kanala je podržan.
+
+### 🎭 Role (16)
 
 | Rola | Boja | Čemu služi |
 |---|---|---|
-| 🕐 Neverifikovan | siva | dobija je svaki nov član (auto-rola) |
-| 🔥 Član | crvena | dobija se klikom na verifikaciju |
-| 🚗 Igrač | narandžasta | role meni |
-| 🎮 Gamer | plava | role meni |
-| 🎨 Dizajner | roze | role meni |
-| ✅ Whitelisted | zelena | posle odobrene prijave |
+| 🕐 Neverifikovan | siva | dobija je svaki nov član |
+| ✅ Verifikovan | zelena | posle klika na verifikaciju |
+| 👤 Građanin | plava | osnovna igračka rola |
+| 👮 LSPD | plava | policija |
+| 🚑 EMS | crvena | hitna pomoć |
+| 🔧 Mehanicar | narandžasta | mehaničari |
+| 📰 Novinar | ljubičasta | mediji |
+| 🏢 Biznis | tirkizna | vlasnici biznisa |
+| 🎮 Gamer / 🎨 Dizajner / 🎬 Streamer / 💎 VIP | — | role iz menija |
 | 🤝 Partner | žuta | partneri |
-| 🎧 Support | plava (hoist) | vidi tikete, prijave, logove |
-| 🛡️ Moderator | narandžasta (hoist) | moderacija + logovi |
-| 🔧 Admin | crvena (hoist) | sve |
+| 🎧 Support / 🛡️ Moderator / 🔧 Admin | — | osoblje (hoist) |
 
-> Rola **Owner** se ne pravi (Discord ne dozvoljava botu da je dodeli) — ti si vlasnik servera, imaš sve.
-> Rola bota je automatski iznad svih ovih (bot ih je napravio), pa sve radi odmah. ✅
+### 🎨 Brending — automatski
 
-### ⚙️ Panele koje bot sam pošalje
+Kad pokreneš `/setup-server`, bot sam:
+- ✅ postavi **ikonici servera** (Blaze logo)
+- ✅ postavi **server banner** (960×540, isti stil)
+- ✅ pošalje baner u dobrodošlicu (1280×400)
 
-- ✅ Verifikacija (pravila + dugme)
-- ✅ Whitelist prijave (forma)
-- ✅ Tiketi (meni sa 6 kategorija)
-- ✅ Sugestije (forma)
-- ✅ Role meni (FiveM igrač / Gamer / Dizajner)
-- ✅ Ikonica servera = Blaze logo (možeš isključiti sa `postavi_ikonu:False`)
-- ⏭️ Live status — čim upišeš `FIVEM_HOST` i restartuješ bota
-
----
+Posebno možeš sa **`/branding postavi`** (ikona + banner) i **`/branding posalji`** (pošalje slike u kanal da uzmeš URL).
 
 ## 2️⃣ (Ako želiš ručno) struktura servera
 
@@ -265,6 +263,16 @@ U folderu `assets/`:
 Za `WELCOME_BANNER_URL` treba **URL** do slike (Discord ne prima lokalni fajl). Najbrže: pošalji sliku u neki kanal na serveru → desni klik na sliku → **Copy Link**.
 
 ---
+
+## 🔧 Logo/banner se ne vidi? — rešenja
+
+| Problem | Uzrok / rešenje |
+|---|---|
+| **Ikonica servera se ne menja** | Pokreni `/branding postavi`. Discord kešira slike → **Ctrl+R** ili restart aplikacije. |
+| **Nema server bannera** | Discord banner traži **Nivo 2 boost** (7 boostova). Bot će javiti grešku — to je do Discorda, ne do bota. |
+| **Baner se ne vidi u dobrodošlici** | Bot šalje sliku kao **prilog** (attachment) — radi bez URL-a. Ako i dalje ne radi, proveri da je `assets/blaze-banner.png` na GitHubu. |
+| **Slike se ne šalju uopšte** | Folder `assets/` nije uploadovan na GitHub. Mora postojati `assets/blaze-banner.png`, `blaze-logo.png`, `blaze-server-banner.png`. |
+| **Želim baner kao URL** | `/branding posalji` → pošalje slike u kanal → desni klik → **Copy Link** → stavi u `WELCOME_BANNER_URL`. |
 
 ## 9️⃣ Redosled paljenja (checklist)
 

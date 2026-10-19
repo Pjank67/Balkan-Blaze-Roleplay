@@ -28,102 +28,103 @@ const ROLES = [
 ];
 
 // access: public | verified | staff | role:<key>
-// ro: read-only (samo staff piše) | (bez ro) => svi sa pristupom pišu
+// ro: read-only (samo staff piše)
+// Ime kanala: EMOJI・ime  (Discord stil)
 const STRUCTURE = [
   {
-    cat: '📢 OBAVEŠTENJA',
+    cat: '📢┃OBAVEŠTENJA',
     access: 'public',
     channels: [
-      { name: 'dobrodosli', key: 'welcomeChannelId', ro: true, topic: 'Dobrodošli na Blaze Roleplay' },
-      { name: 'pravila', key: 'rulesChannelId', ro: true, topic: 'Pravila servera — obavezno pročitati' },
-      { name: 'objave', key: 'announcementChannelId', ro: true, topic: 'Zvanične objave' },
-      { name: 'update-log', ro: true, topic: 'Nove skripte, ispravke i update-i' },
-      { name: 'server-status', key: 'statusChannelId', ro: true, topic: 'Live status FiveM servera' },
-      { name: 'kako-se-povezati', ro: true, topic: 'Uputstvo za ulazak u grad' },
-      { name: 'faq', ro: true, topic: 'Često postavljana pitanja' }
+      { name: '👋・dobrodosli', key: 'welcomeChannelId', ro: true, topic: 'Dobrodošli na Blaze Roleplay 🔥' },
+      { name: '📋・pravila', key: 'rulesChannelId', ro: true, topic: 'Pravila servera — obavezno pročitati' },
+      { name: '📢・objave', key: 'announcementChannelId', ro: true, topic: 'Zvanične objave i novosti' },
+      { name: '🔄・update-log', ro: true, topic: 'Nove skripte, ispravke i update-i' },
+      { name: '🟢・server-status', key: 'statusChannelId', ro: true, topic: 'Live status FiveM servera' },
+      { name: '🔌・kako-se-povezati', ro: true, topic: 'Kako ući u grad u 3 koraka' },
+      { name: '❓・faq', ro: true, topic: 'Često postavljana pitanja' }
     ]
   },
   {
-    cat: '✅ VERIFIKACIJA',
+    cat: '✅┃VERIFIKACIJA',
     access: 'public',
     channels: [
-      { name: 'verifikacija', key: 'verifyChannelId', ro: true, topic: 'Prihvati pravila i dobij pristup' },
-      { name: 'role', key: 'rolesChannelId', ro: true, topic: 'Izaberi svoje role' },
-      { name: 'prijava-departmana', key: 'applyPanelChannelId', ro: true, topic: 'Prijave za LSPD, EMS, Mehaničare, Novinare' }
+      { name: '🛡️・verifikacija', key: 'verifyChannelId', ro: true, topic: 'Prihvati pravila i dobij pristup' },
+      { name: '🎭・role', key: 'rolesChannelId', ro: true, topic: 'Izaberi svoje role' },
+      { name: '📝・prijava-departmana', key: 'applyPanelChannelId', ro: true, topic: 'Prijave: LSPD • EMS • Mehanicar • Novinar' }
     ]
   },
   {
-    cat: '🏙️ GRAD',
+    cat: '🏙️┃GRAD',
     access: 'verified',
     channels: [
-      { name: 'kako-poceti', ro: true, topic: 'Prvi koraci u gradu' },
-      { name: 'pravila-rp', ro: true, topic: 'RP pravila (RDM, VDM, meta, powergaming...)' },
-      { name: 'komande', ro: true, topic: 'Korisne komande u igri' },
-      { name: 'lokacije', ro: true, topic: 'Važne lokacije u gradu' },
-      { name: 'ekonomija', ro: true, topic: 'Poslovi, zarada i cene' },
-      { name: 'organizacije', ro: true, topic: 'Mafije, bande i MC — pravila i prijave' }
+      { name: '🚀・kako-poceti', ro: true, topic: 'Prvi koraci u gradu' },
+      { name: '⚖️・pravila-rp', ro: true, topic: 'RP pravila: RDM, VDM, meta, powergaming' },
+      { name: '⌨️・komande', ro: true, topic: 'Korisne komande u igri' },
+      { name: '📍・lokacije', ro: true, topic: 'Važne lokacije u gradu' },
+      { name: '💰・ekonomija', ro: true, topic: 'Poslovi, zarada i cene' },
+      { name: '🕶️・organizacije', ro: true, topic: 'Mafije, bande i MC — pravila i prijave' }
     ]
   },
   {
-    cat: '💬 ZAJEDNICA',
+    cat: '💬┃ZAJEDNICA',
     access: 'verified',
     channels: [
-      { name: 'opsti-caskanje', key: 'generalChannelId', topic: 'Opšte ćaskanje' },
-      { name: 'rp-caskanje', topic: 'RP priče, događaji i tračevi iz grada' },
-      { name: 'mediji', key: 'mediaChannelId', topic: 'Slike i klipovi' },
-      { name: 'memes', topic: 'Memovi — bez vređanja' },
-      { name: 'oglasi', topic: 'Prodaja vozila, kuća i itema' },
-      { name: 'trazenje-ekipe', topic: 'Nađi ekipu za RP' },
-      { name: 'predlozi', key: 'suggestionChannelId', ro: true, topic: 'Predlozi zajednice' }
+      { name: '💬・opsti-caskanje', key: 'generalChannelId', topic: 'Opšte ćaskanje' },
+      { name: '🎬・rp-caskanje', topic: 'RP priče, događaji i tračevi iz grada' },
+      { name: '📸・mediji', key: 'mediaChannelId', topic: 'Slike i klipovi' },
+      { name: '😂・memes', topic: 'Memovi — bez vređanja' },
+      { name: '🏷️・oglasi', topic: 'Prodaja vozila, kuća i itema' },
+      { name: '🧑‍🤝‍🧑・trazenje-ekipe', topic: 'Nađi ekipu za RP' },
+      { name: '💡・predlozi', key: 'suggestionChannelId', ro: true, topic: 'Predlozi zajednice' }
     ]
   },
   {
-    cat: '👮 DEPARTMANI',
+    cat: '👮┃DEPARTMANI',
     access: 'staff',
     channels: [
-      { name: 'lspd-obavestenja', access: 'role:lspdRoleId', ro: true, topic: 'LSPD obaveštenja' },
-      { name: 'lspd-caskanje', access: 'role:lspdRoleId', topic: 'LSPD interna komunikacija' },
-      { name: 'ems-obavestenja', access: 'role:emsRoleId', ro: true, topic: 'EMS obaveštenja' },
-      { name: 'ems-caskanje', access: 'role:emsRoleId', topic: 'EMS interna komunikacija' },
-      { name: 'mehanicari', access: 'role:mechanicRoleId', topic: 'Mehaničari — posao i organizacija' },
-      { name: 'novinari', access: 'role:newsRoleId', topic: 'Novinari — vesti i mediji' }
+      { name: '🚔・lspd-obavestenja', access: 'role:lspdRoleId', ro: true, topic: 'LSPD obaveštenja' },
+      { name: '👮・lspd-caskanje', access: 'role:lspdRoleId', topic: 'LSPD interna komunikacija' },
+      { name: '🚨・ems-obavestenja', access: 'role:emsRoleId', ro: true, topic: 'EMS obaveštenja' },
+      { name: '🚑・ems-caskanje', access: 'role:emsRoleId', topic: 'EMS interna komunikacija' },
+      { name: '🔧・mehanicari', access: 'role:mechanicRoleId', topic: 'Mehaničari — posao i organizacija' },
+      { name: '📰・novinari', access: 'role:newsRoleId', topic: 'Novinari — vesti i mediji' }
     ]
   },
   {
-    cat: '🎫 PODRŠKA',
+    cat: '🎫┃PODRŠKA',
     access: 'verified',
     channels: [
-      { name: 'tiket-panel', key: 'ticketPanelChannelId', ro: true, topic: 'Otvori tiket — izaberi kategoriju' },
-      { name: 'podrska-info', ro: true, topic: 'Kako radi podrška i tiketi' }
+      { name: '🎫・tiket-panel', key: 'ticketPanelChannelId', ro: true, topic: 'Otvori tiket — izaberi kategoriju' },
+      { name: '📖・podrska-info', ro: true, topic: 'Kako radi podrška i tiketi' }
     ]
   },
   {
-    cat: '📝 PRIJAVE',
+    cat: '📝┃PRIJAVE',
     access: 'staff',
     channels: []
   },
   {
-    cat: '📋 LOGOVI',
+    cat: '📋┃LOGOVI',
     access: 'staff',
     channels: [
-      { name: 'mod-log', key: 'modLogChannelId', ro: true, topic: 'Moderacijske akcije' },
-      { name: 'automod-log', key: 'automodLogChannelId', ro: true, topic: 'Automod akcije' },
-      { name: 'message-log', key: 'logChannelId', ro: true, topic: 'Brisanje i izmena poruka' },
-      { name: 'join-log', key: 'joinLogChannelId', ro: true, topic: 'Ulazak i izlazak članova' },
-      { name: 'transkripti', key: 'ticketLogChannelId', ro: true, topic: 'Transkripti tiketa i prijava' }
+      { name: '🛡️・mod-log', key: 'modLogChannelId', ro: true, topic: 'Moderacijske akcije' },
+      { name: '🤖・automod-log', key: 'automodLogChannelId', ro: true, topic: 'Automod akcije i kazne' },
+      { name: '🗑️・message-log', key: 'logChannelId', ro: true, topic: 'Brisanje i izmena poruka' },
+      { name: '📥・join-log', key: 'joinLogChannelId', ro: true, topic: 'Ulazak i izlazak članova' },
+      { name: '📄・transkripti', key: 'ticketLogChannelId', ro: true, topic: 'Transkripti tiketa i prijava' }
     ]
   },
   {
-    cat: '🔊 GLASOVNI',
+    cat: '🔊┃GLASOVNI',
     access: 'verified',
     channels: [
-      { name: 'Opšti 1', voice: true },
-      { name: 'Opšti 2', voice: true },
-      { name: 'RP soba 1', voice: true },
-      { name: 'RP soba 2', voice: true },
-      { name: 'Gaming', voice: true },
-      { name: 'Muzika', voice: true },
-      { name: 'AFK', voice: true },
+      { name: '🔊 Opšti 1', voice: true },
+      { name: '🔊 Opšti 2', voice: true },
+      { name: '🎭 RP soba 1', voice: true },
+      { name: '🎭 RP soba 2', voice: true },
+      { name: '🎮 Gaming', voice: true },
+      { name: '🎵 Muzika', voice: true },
+      { name: '💤 AFK', voice: true },
       { name: '➕ Napravi sobu', voice: true, key: 'tempVoiceChannelId' }
     ]
   }
@@ -195,15 +196,26 @@ function staffRoleIdsOf(roleIds) {
 //  POMOĆNE
 // ============================================================
 
+function stripName(n) {
+  return String(n).replace(/[^a-zA-Z0-9čćžšđČĆŽŠĐ-]/g, '').toLowerCase();
+}
+
 const BOT_CHANNEL_NAMES = new Set();
 const BOT_CATEGORY_NAMES = new Set();
 const BOT_ROLE_NAMES = new Set();
 
-for (const def of ROLES) BOT_ROLE_NAMES.add(def.name);
+for (const def of ROLES) BOT_ROLE_NAMES.add(stripName(def.name));
 for (const cat of STRUCTURE) {
-  BOT_CATEGORY_NAMES.add(cat.cat);
-  for (const ch of cat.channels) BOT_CHANNEL_NAMES.add(ch.name);
+  BOT_CATEGORY_NAMES.add(stripName(cat.cat));
+  for (const ch of cat.channels) BOT_CHANNEL_NAMES.add(stripName(ch.name));
 }
+
+// Stara imena (bez emojija) da wipe prepozna i ranije napravljene kanale
+const LEGACY_CHANNEL_NAMES = new Set([
+  'dobrodoslica', 'pravila', 'objave', 'odlasci', 'status-servera', 'kako-se-povezati',
+  'sugestije', 'verifikacija', 'whitelist-prijava', 'role', 'opsti-caskanje', 'mediji',
+  'tiket-panel', 'transkripti', 'mod-log', 'message-log'
+]);
 
 function inCategory(guild, categoryId, name, type) {
   return guild.channels.cache.find(
@@ -224,13 +236,35 @@ async function ensureRole(guild, { name, color, hoist }) {
   return { role, created: true };
 }
 
+
+// Discord ponekad odbije ime sa emoji-jem — probaj bez njega
+async function createChannelSafe(guild, options) {
+  try {
+    return await guild.channels.create(options);
+  } catch (err) {
+    if (err?.code === 50035 || /name/i.test(err?.message ?? '')) {
+      const fallback = {
+        ...options,
+        name: options.name
+          .replace(/[\u{1F000}-\u{1FAFF}\u{2600}-\u{27BF}\u{2B00}-\u{2BFF}\u{FE0F}]/gu, '')
+          .replace(/^[\s・|]+|[\s・|]+$/g, '')
+          .trim()
+          .slice(0, 100) || 'kanal'
+      };
+      console.warn(`⚠️ Ime "${options.name}" nije prihvaćeno, koristim "${fallback.name}"`);
+      return await guild.channels.create(fallback);
+    }
+    throw err;
+  }
+}
+
 async function ensureCategory(guild, name) {
   const existing = guild.channels.cache.find(
     (c) => c.type === ChannelType.GuildCategory && c.name === name
   );
   if (existing) return { category: existing, created: false };
 
-  const category = await guild.channels.create({
+  const category = await createChannelSafe(guild, {
     name,
     type: ChannelType.GuildCategory,
     reason: 'Blaze Roleplay — automatski setup'
@@ -259,7 +293,13 @@ async function wipe(guild, mode = 'botovo', { keepChannelId = null } = {}) {
         continue;
       }
 
-      if (mode === 'botovo' && !BOT_CHANNEL_NAMES.has(channel.name) && !BOT_CATEGORY_NAMES.has(channel.name)) {
+      const stripped = stripName(channel.name);
+      if (
+        mode === 'botovo' &&
+        !BOT_CHANNEL_NAMES.has(stripped) &&
+        !BOT_CATEGORY_NAMES.has(stripped) &&
+        !LEGACY_CHANNEL_NAMES.has(stripped)
+      ) {
         continue;
       }
 
@@ -299,7 +339,7 @@ async function wipe(guild, mode = 'botovo', { keepChannelId = null } = {}) {
         continue;
       }
 
-      if (mode === 'botovo' && !BOT_ROLE_NAMES.has(role.name)) continue;
+      if (mode === 'botovo' && !BOT_ROLE_NAMES.has(stripName(role.name))) continue;
 
       try {
         await role.delete('Blaze Roleplay — čišćenje servera');
@@ -401,7 +441,7 @@ async function runSetup(guild, { setIcon = true, onProgress = null } = {}) {
           roleIds: roleSnapshot
         });
 
-        const channel = await guild.channels.create({
+        const channel = await createChannelSafe(guild, {
           name: chDef.name,
           type,
           parent: parentId,
@@ -498,7 +538,7 @@ async function runSetup(guild, { setIcon = true, onProgress = null } = {}) {
     report.skipped.push('Live status (nema FIVEM_HOST)');
   }
 
-  // ---------- 6) IKONA ----------
+  // ---------- 6) IKONA + SERVER BANER ----------
   if (setIcon) {
     try {
       const iconPath = path.join(__dirname, '..', '..', 'assets', 'blaze-logo.png');
@@ -509,6 +549,17 @@ async function runSetup(guild, { setIcon = true, onProgress = null } = {}) {
     } catch (err) {
       report.errors.push(`Ikonica: ${err.message}`);
     }
+  }
+
+  // Server banner (960x540) — isti stil kao logo
+  try {
+    const bannerPath = path.join(__dirname, '..', '..', 'assets', 'blaze-server-banner.png');
+    if (fs.existsSync(bannerPath)) {
+      await guild.setBanner(fs.readFileSync(bannerPath), 'Blaze Roleplay banner');
+      report.panels.push('Server banner postavljen');
+    }
+  } catch (err) {
+    report.errors.push(`Banner: ${err.message}`);
   }
 
   return report;
@@ -544,9 +595,12 @@ async function discoverSettings(client) {
   const found = { ...current };
   let count = 0;
 
+  const stripEmoji = (n) => String(n).replace(/[^a-zA-Z0-9čćžšđČĆŽŠĐ-]/g, '').toLowerCase();
+
   for (const [key, name] of Object.entries(NAME_MAP)) {
     if (found[key]) continue;
-    const channel = guild.channels.cache.find((c) => c.name === name);
+    const target = stripEmoji(name);
+    const channel = guild.channels.cache.find((c) => stripEmoji(c.name) === target);
     if (channel) {
       found[key] = channel.id;
       count++;
@@ -555,15 +609,16 @@ async function discoverSettings(client) {
 
   for (const [key, name] of Object.entries(ROLE_NAME_MAP)) {
     if (found[key]) continue;
-    const role = guild.roles.cache.find((r) => r.name === name);
+    const target = stripEmoji(name);
+    const role = guild.roles.cache.find((r) => stripEmoji(r.name) === target);
     if (role) {
       found[key] = role.id;
       count++;
     }
   }
 
-  const support = guild.channels.cache.find((c) => c.name === '🎫 PODRŠKA');
-  const apply = guild.channels.cache.find((c) => c.name === '📝 PRIJAVE');
+  const support = guild.channels.cache.find((c) => c.type === ChannelType.GuildCategory && /PODR[ŠS]KA/i.test(c.name));
+  const apply = guild.channels.cache.find((c) => c.type === ChannelType.GuildCategory && /PRIJAVE/i.test(c.name));
 
   if (!found.ticketCategoryId && support) {
     found.ticketCategoryId = support.id;

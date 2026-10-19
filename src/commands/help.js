@@ -13,7 +13,7 @@ const GROUPS = [
     title: '🛠️ Moderacija',
     commands: ['ban', 'kick', 'timeout', 'warn', 'clear', 'slowmode', 'lock', 'unlock']
   },
-  { title: '⚙️ Administracija', commands: ['setup-server', 'setup', 'stats'] },
+  { title: '⚙️ Administracija', commands: ['setup-server', 'reset-server', 'setup', 'branding', 'stats'] },
   { title: '🎯 Korisno', commands: ['ping', 'serverinfo', 'userinfo', 'avatar', 'poll', 'say', 'embed'] },
   { title: 'ℹ️ Pomoć', commands: ['help'] }
 ];
