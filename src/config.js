@@ -141,6 +141,7 @@ module.exports = {
   welcomeDm: bool('WELCOME_DM', false),
   registerCommandsOnStart: bool('REGISTER_COMMANDS_ON_START', true),
   enableMessageContent: bool('ENABLE_MESSAGE_CONTENT', false),
+  setBotAvatar: bool('SET_BOT_AVATAR', true),
 
   // ===== Automod (Vortex stil — strogo) =====
   automod: {

@@ -1,7 +1,7 @@
 {
-  "name": "srpski-discord-bot",
-  "version": "1.0.0",
-  "description": "Discord bot sa tiket sistemom, dobrodošlicom, moderacijom i korisnim komandama",
+  "name": "blaze-roleplay-bot",
+  "version": "2.0.0",
+  "description": "Blaze Roleplay — Discord bot (tiketi, departmani, automod, FiveM status)",
   "main": "src/index.js",
   "scripts": {
     "start": "node src/index.js",

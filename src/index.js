@@ -47,35 +47,86 @@ const client = new Client({
 client.commands = new Collection();
 
 // ---------- Događaji ----------
+
+// Postavi avatar bota (jednom) i status "gleda Blaze Roleplay"
+async function ensureBotBranding(readyClient) {
+  const fs = require('fs');
+  const path = require('path');
+  const { ActivityType } = require('discord.js');
+  const db = require('./db');
+
+  // Status (radi uvek, bez ograničenja)
+  try {
+    readyClient.user.setPresence({
+      status: 'online',
+      activities: [{ name: `${config.serverName} 🔥`, type: ActivityType.Watching }]
+    });
+  } catch {
+    // ignore
+  }
+
+  // Avatar — samo ako je uključeno i ako već nije postavljen
+  if (!config.setBotAvatar) return;
+  if (db.get('botAvatarSet', false)) return;
+
+  try {
+    const avatarPath = path.join(__dirname, '..', 'assets', 'blaze-logo.png');
+    if (!fs.existsSync(avatarPath)) return;
+
+    await readyClient.user.setAvatar(fs.readFileSync(avatarPath));
+    db.set('botAvatarSet', true);
+    console.log('🎨 Avatar bota postavljen.');
+  } catch (err) {
+    console.warn('⚠️ Avatar bota nije postavljen (Discord limit ~2x/h):', err.message);
+  }
+}
+
 client.once(Events.ClientReady, async (readyClient) => {
   console.log('\n✅ Bot je pokrenut!');
   console.log(`🤖 Prijavljen kao: ${readyClient.user.tag}`);
   console.log(`🌐 Servera: ${readyClient.guilds.cache.size}`);
   console.log(`📦 Učitanih komandi: ${client.commands.size}`);
 
-  // Upozorenja
-  if (!config.ticketCategoryId) console.warn('⚠️ TICKET_CATEGORY_ID nije podešen — tiketi neće raditi.');
-  if (!config.welcomeChannelId) console.warn('⚠️ WELCOME_CHANNEL_ID nije podešen — nema dobrodošlice.');
-  if (!config.verifyRoleId) console.warn('⚠️ VERIFY_ROLE_ID nije podešen — verifikacija neće dodeljivati rolu.');
-  if (!config.staffRoleId) console.warn('⚠️ STAFF_ROLE_ID nije podešen — osoblje će biti samo admini.');
-  if (!config.fivemHost) console.warn('⚠️ FIVEM_HOST nije podešen — /status i live status neće raditi.');
+  // ---------- 1) Prvo OPORAVAK podešavanja po imenu ----------
+  // (bitno na Renderu gde se disk briše pri svakom deployu)
+  const recovered = await discoverSettings(readyClient).catch((err) => {
+    console.warn('⚠️ Oporavak podešavanja nije uspeo:', err.message);
+    return false;
+  });
+
+  // ---------- 2) Tek SADA proveri šta stvarno fali ----------
+  const missing = [];
+  if (!config.ticketCategoryId) missing.push('tiketi (TICKET_CATEGORY_ID)');
+  if (!config.welcomeChannelId) missing.push('dobrodošlica (WELCOME_CHANNEL_ID)');
+  if (!config.verifyRoleId) missing.push('verifikacija (VERIFY_ROLE_ID)');
+  if (!config.staffRoleId) missing.push('osoblje (STAFF_ROLE_ID)');
+
+  if (missing.length) {
+    console.warn('\n⚠️ Nije pronađeno: ' + missing.join(', '));
+    console.warn('   👉 Pokreni /setup-server potvrdi:True na serveru da bot sve napravi.\n');
+  } else {
+    console.log('✅ Sva podešavanja su na mestu.' + (recovered ? ' (obnovljena iz kanala)' : ''));
+  }
+
+  // FiveM i automod — nezavisno od setupa
+  if (!config.fivemHost) {
+    console.log('ℹ️ FIVEM_HOST nije podešen — /status radi čim upišeš IP servera (opciono).');
+  }
   if (!config.enableMessageContent) {
     console.warn('⚠️ ENABLE_MESSAGE_CONTENT nije true — automod i logovi poruka su isključeni.');
   }
 
-  // Oporavak podešavanja po imenu kanala (bitno na Renderu gde se disk briše)
-  await discoverSettings(readyClient).catch((err) =>
-    console.warn('⚠️ Oporavak podešavanja nije uspeo:', err.message)
-  );
-
-  // Oporavak sistema posle restarta/deploya
+  // ---------- 3) Oporavak sistema posle restarta/deploya ----------
   await restoreTickets(readyClient).catch((err) =>
     console.warn('⚠️ Oporavak tiketa nije uspeo:', err.message)
   );
   restoreGiveaways(readyClient);
   startStatusUpdater(readyClient);
 
-  console.log('\n💡 Komande se registruju automatski pri startu.\n');
+  // ---------- 4) Brending bota (avatar + status) ----------
+  await ensureBotBranding(readyClient).catch(() => {});
+
+  console.log('\n💡 Spremno! Komande se registruju automatski pri startu.\n');
 });
 
 client.on(Events.GuildMemberAdd, (member) => {
