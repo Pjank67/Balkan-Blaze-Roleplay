@@ -95,6 +95,7 @@ async function handleSelectMenus(interaction) {
   if (id === 'ticket:create') return tickets.handleSelect(interaction);
   if (id === 'apply:dept') return applications.handleDeptSelect(interaction);
   if (id.startsWith('rr:menu')) return reactionroles.handleSelect(interaction);
+  if (id.startsWith('tv:')) return tempvoice.handleSelect(interaction);
 
   return false;
 }
@@ -142,7 +143,7 @@ async function handleInteraction(interaction) {
       return;
     }
 
-    if (interaction.isStringSelectMenu()) {
+    if (interaction.isStringSelectMenu() || interaction.isUserSelectMenu?.()) {
       await handleSelectMenus(interaction);
       return;
     }

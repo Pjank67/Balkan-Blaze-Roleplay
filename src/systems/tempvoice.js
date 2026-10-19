@@ -2,6 +2,7 @@ const {
   ActionRowBuilder,
   ButtonBuilder,
   ButtonStyle,
+  UserSelectMenuBuilder,
   ModalBuilder,
   TextInputBuilder,
   TextInputStyle,
@@ -12,6 +13,10 @@ const {
 const config = require('../config');
 const db = require('../db');
 const { COLOR, brandEmbed, isStaff } = require('../utils');
+
+// ============================================================
+//  TEMP VOICE — kontrolna tabla sobe
+// ============================================================
 
 function rooms() {
   return db.get('tempvoice', { rooms: {} }).rooms;
@@ -29,49 +34,124 @@ function saveRoom(channelId, data) {
   });
 }
 
+// ---------- Embed ----------
+
 function buildPanelEmbed(channel, room) {
-  const owner = channel.guild.members.cache.get(room.ownerId);
-  const users = channel.members?.map((m) => `<@${m.id}>`).join(', ') || '—';
+  const guild = channel.guild;
+  const owner = guild.members.cache.get(room.ownerId);
+  const members = channel.members ? [...channel.members.values()] : [];
+
+  const membersText = members.length
+    ? members.map((m) => `<@${m.id}>`).slice(0, 20).join(', ')
+    : '*niko nije u sobi*';
 
   return brandEmbed({
-    title: '🔊 TVOJA SOBA',
+    title: '🎛️ UPRAVLJANJE SOBOM',
     description: [
-      'Ovo je tvoja privremena soba — nestaje kada ostane prazna.',
+      'Ovo je **tvoja** privremena soba — nestaje kada ostane prazna.',
       '',
-      'Koristi dugmiće ispod da je podesiš.'
+      '**🔒 Zaključaj** — niko nov ne može da uđe',
+      '**🙈 Sakrij** — soba se ne vidi u listi',
+      '**🚪 Izbaci** — izbaci igrača iz sobe',
+      '**✅ Dozvoli** — pusti igrača u zaključanu sobu',
+      '**👑 Prenesi** — daj sobu drugom igraču',
+      '',
+      `🟢 Status: ${room.locked ? '**ZAKLJUČANA**' : 'otvorena'} • ${room.hidden ? '**SAKRIVENA**' : 'vidljiva'}`
     ].join('\n'),
-    color: COLOR.main,
+    color: room.locked ? COLOR.danger : COLOR.main,
     fields: [
       { name: '👑 Vlasnik', value: owner ? `${owner}` : `<@${room.ownerId}>`, inline: true },
-      { name: '👥 U sobi', value: users.slice(0, 1024), inline: true },
-      { name: '👤 Limit', value: room.limit ? `${room.limit}` : '∞', inline: true }
+      { name: '👥 Limit', value: room.limit ? `${room.limit}` : '∞', inline: true },
+      { name: '🔑 Dozvoljeni', value: room.allowed?.length ? room.allowed.map((id) => `<@${id}>`).join(', ').slice(0, 300) : '—', inline: true },
+      { name: `👥 U sobi (${members.length})`, value: membersText.slice(0, 1024) }
     ],
-    footer: 'temp voice'
+    footer: 'temp voice • samo vlasnik i osoblje'
   });
 }
 
-function buildPanelRow() {
-  return [
+// ---------- Komponente ----------
+
+function buildPanelRows(channel, room) {
+  const rows = [];
+
+  // Red 1 — glavne akcije
+  rows.push(
     new ActionRowBuilder().addComponents(
-      new ButtonBuilder().setCustomId('tv:lock').setLabel('Zaključaj').setEmoji('🔒').setStyle(ButtonStyle.Secondary),
-      new ButtonBuilder().setCustomId('tv:unlock').setLabel('Otključaj').setEmoji('🔓').setStyle(ButtonStyle.Secondary),
-      new ButtonBuilder().setCustomId('tv:hide').setLabel('Sakrij').setEmoji('🙈').setStyle(ButtonStyle.Secondary),
-      new ButtonBuilder().setCustomId('tv:show').setLabel('Prikaži').setEmoji('👁️').setStyle(ButtonStyle.Secondary),
-      new ButtonBuilder().setCustomId('tv:delete').setLabel('Obriši').setEmoji('🗑️').setStyle(ButtonStyle.Danger)
-    ),
-    new ActionRowBuilder().addComponents(
+      new ButtonBuilder()
+        .setCustomId('tv:lock')
+        .setLabel(room.locked ? 'Otključaj' : 'Zaključaj')
+        .setEmoji(room.locked ? '🔓' : '🔒')
+        .setStyle(room.locked ? ButtonStyle.Success : ButtonStyle.Secondary),
+      new ButtonBuilder()
+        .setCustomId('tv:hide')
+        .setLabel(room.hidden ? 'Prikaži' : 'Sakrij')
+        .setEmoji(room.hidden ? '👁️' : '🙈')
+        .setStyle(room.hidden ? ButtonStyle.Success : ButtonStyle.Secondary),
       new ButtonBuilder().setCustomId('tv:rename').setLabel('Preimenuj').setEmoji('✏️').setStyle(ButtonStyle.Primary),
       new ButtonBuilder().setCustomId('tv:limit').setLabel('Limit').setEmoji('👥').setStyle(ButtonStyle.Primary),
-      new ButtonBuilder().setCustomId('tv:claim').setLabel('Preuzmi sobu').setEmoji('👑').setStyle(ButtonStyle.Success)
+      new ButtonBuilder().setCustomId('tv:claim').setLabel('Preuzmi').setEmoji('👑').setStyle(ButtonStyle.Primary)
     )
-  ];
+  );
+
+  // Red 2 — opasne akcije
+  rows.push(
+    new ActionRowBuilder().addComponents(
+      new ButtonBuilder()
+        .setCustomId('tv:delete')
+        .setLabel('Obriši sobu')
+        .setEmoji('🗑️')
+        .setStyle(ButtonStyle.Danger),
+      new ButtonBuilder()
+        .setCustomId('tv:refresh')
+        .setLabel('Osveži')
+        .setEmoji('🔄')
+        .setStyle(ButtonStyle.Secondary)
+    )
+  );
+
+  // Red 3 — izbaci korisnika
+  rows.push(
+    new ActionRowBuilder().addComponents(
+      new UserSelectMenuBuilder()
+        .setCustomId('tv:kick')
+        .setPlaceholder('🚪 Izbaci korisnika iz sobe...')
+        .setMaxValues(5)
+    )
+  );
+
+  // Red 4 — dozvoli korisnika
+  rows.push(
+    new ActionRowBuilder().addComponents(
+      new UserSelectMenuBuilder()
+        .setCustomId('tv:permit')
+        .setPlaceholder('✅ Dozvoli korisniku da uđe...')
+        .setMaxValues(5)
+    )
+  );
+
+  // Red 5 — prenesi vlasništvo
+  rows.push(
+    new ActionRowBuilder().addComponents(
+      new UserSelectMenuBuilder()
+        .setCustomId('tv:transfer')
+        .setPlaceholder('👑 Prenesi vlasništvo na...')
+        .setMaxValues(1)
+    )
+  );
+
+  return rows;
 }
 
 async function refreshPanel(channel, room) {
   try {
     if (!room.panelMessageId) return;
     const message = await channel.messages.fetch(room.panelMessageId).catch(() => null);
-    if (message) await message.edit({ embeds: [buildPanelEmbed(channel, room)] });
+    if (message) {
+      await message.edit({
+        embeds: [buildPanelEmbed(channel, room)],
+        components: buildPanelRows(channel, room)
+      });
+    }
   } catch {
     // nije kritično
   }
@@ -98,7 +178,8 @@ async function createRoom(newState) {
             PermissionFlagsBits.ViewChannel,
             PermissionFlagsBits.ManageChannels,
             PermissionFlagsBits.Connect,
-            PermissionFlagsBits.SendMessages
+            PermissionFlagsBits.SendMessages,
+            PermissionFlagsBits.MoveMembers
           ]
         },
         {
@@ -107,7 +188,9 @@ async function createRoom(newState) {
             PermissionFlagsBits.ViewChannel,
             PermissionFlagsBits.Connect,
             PermissionFlagsBits.Speak,
-            PermissionFlagsBits.SendMessages
+            PermissionFlagsBits.SendMessages,
+            PermissionFlagsBits.ManageChannels,
+            PermissionFlagsBits.MoveMembers
           ]
         }
       ]
@@ -115,12 +198,21 @@ async function createRoom(newState) {
 
     await member.voice.setChannel(room, 'Temp voice soba').catch(() => {});
 
-    const data = { ownerId: member.id, limit: 0, panelMessageId: null };
+    const data = {
+      ownerId: member.id,
+      limit: 0,
+      locked: false,
+      hidden: false,
+      allowed: [],
+      panelMessageId: null,
+      createdAt: Date.now()
+    };
+
     saveRoom(room.id, data);
 
     const panel = await room.send({
       embeds: [buildPanelEmbed(room, data)],
-      components: buildPanelRow()
+      components: buildPanelRows(room, data)
     });
 
     data.panelMessageId = panel.id;
@@ -135,7 +227,7 @@ async function createRoom(newState) {
 async function handleVoiceState(oldState, newState) {
   if (!config.tempVoiceChannelId) return;
 
-  // 1) Neko je ušao u "Napravi sobu"
+  // 1) Neko je ušao u "➕ Napravi sobu"
   if (
     newState.channelId === config.tempVoiceChannelId &&
     oldState.channelId !== config.tempVoiceChannelId
@@ -162,8 +254,39 @@ async function handleVoiceState(oldState, newState) {
     if (channel.members.size === 0) {
       saveRoom(oldState.channelId, null);
       await channel.delete('Temp soba prazna').catch(() => {});
+      return;
+    }
+
+    // osveži panel kad se broj članova promeni
+    const updated = getRoom(channel.id);
+    if (updated?.panelMessageId) {
+      setTimeout(() => refreshPanel(channel, updated).catch(() => {}), 500);
     }
   }
+}
+
+// ---------- Dozvole ----------
+
+function isOwnerOrStaff(interaction, room) {
+  return interaction.user.id === room.ownerId || isStaff(interaction.member);
+}
+
+async function denyEveryone(channel, guild, { connect = false, view = false }) {
+  const deny = [];
+  if (connect) deny.push(PermissionFlagsBits.Connect);
+  if (view) deny.push(PermissionFlagsBits.ViewChannel);
+
+  await channel.permissionOverwrites.edit(guild.roles.everyone.id, { deny }, { reason: 'Temp voice — zaključano' });
+}
+
+async function allowEveryone(channel, guild, { connect = false, view = false }) {
+  const patch = {};
+  if (connect) patch.Connect = true;
+  if (view) patch.ViewChannel = true;
+
+  await channel.permissionOverwrites.edit(guild.roles.everyone.id, patch, {
+    reason: 'Temp voice — otključano'
+  });
 }
 
 // ---------- Dugmići ----------
@@ -175,17 +298,16 @@ async function handleButton(interaction) {
 
   if (!room) {
     await interaction.reply({
-      content: '❌ Ovi dugmići rade samo u privremenim sobama.',
+      content: '❌ Ovi dugmići rade samo u privremenim sobama. Uđi u **➕ Napravi sobu** da napraviš svoju.',
       flags: MessageFlags.Ephemeral
     });
     return true;
   }
 
-  const owner = interaction.guild.members.cache.get(room.ownerId);
   const isOwner = interaction.user.id === room.ownerId;
   const ownerPresent = channel.members.has(room.ownerId);
 
-  // Preuzimanje sobe je dozvoljeno samo ako vlasnik nije u sobi
+  // ---------- PREUZMI ----------
   if (action === 'claim') {
     if (ownerPresent) {
       await interaction.reply({
@@ -195,14 +317,41 @@ async function handleButton(interaction) {
       return true;
     }
 
+    const oldOwner = room.ownerId;
     room.ownerId = interaction.user.id;
     saveRoom(channel.id, room);
+
+    // dozvole: novi vlasnik dobija ManageChannels
+    await channel.permissionOverwrites
+      .edit(interaction.user.id, {
+        ViewChannel: true,
+        Connect: true,
+        Speak: true,
+        SendMessages: true,
+        ManageChannels: true,
+        MoveMembers: true
+      })
+      .catch(() => {});
+
+    await channel.permissionOverwrites
+      .edit(oldOwner, { ManageChannels: false, MoveMembers: false })
+      .catch(() => {});
+
     await interaction.reply({ content: `👑 Sada si vlasnik sobe!` });
     await refreshPanel(channel, room);
     return true;
   }
 
-  if (!isOwner && !isStaff(interaction.member)) {
+  // ---------- OSVEŽI ----------
+  if (action === 'refresh') {
+    await interaction.deferReply({ flags: MessageFlags.Ephemeral });
+    await refreshPanel(channel, room);
+    await interaction.editReply({ content: '🔄 Panel osvežen.' });
+    return true;
+  }
+
+  // ostalo samo vlasnik / staff
+  if (!isOwnerOrStaff(interaction, room)) {
     await interaction.reply({
       content: '❌ Samo vlasnik sobe (ili osoblje) može da menja podešavanja.',
       flags: MessageFlags.Ephemeral
@@ -210,30 +359,49 @@ async function handleButton(interaction) {
     return true;
   }
 
+  // ---------- ZAKLJUČAJ / OTKLJUČAJ ----------
   if (action === 'lock') {
-    await channel.permissionOverwrites.edit(interaction.guild.roles.everyone, { Connect: false });
-    await interaction.reply({ content: '🔒 Soba je zaključana.' });
+    room.locked = !room.locked;
+    saveRoom(channel.id, room);
+
+    if (room.locked) {
+      await denyEveryone(channel, interaction.guild, { connect: true });
+    } else {
+      await allowEveryone(channel, interaction.guild, { connect: true });
+    }
+
+    await interaction.reply({
+      content: room.locked
+        ? '🔒 Soba je **zaključana** — niko nov ne može da uđe. Koristi **✅ Dozvoli** da pustiš nekoga.'
+        : '🔓 Soba je **otključana** — svi mogu da uđu.'
+    });
+
+    await refreshPanel(channel, room);
     return true;
   }
 
-  if (action === 'unlock') {
-    await channel.permissionOverwrites.edit(interaction.guild.roles.everyone, { Connect: true });
-    await interaction.reply({ content: '🔓 Soba je otključana.' });
-    return true;
-  }
-
+  // ---------- SAKRIJ / PRIKAŽI ----------
   if (action === 'hide') {
-    await channel.permissionOverwrites.edit(interaction.guild.roles.everyone, { ViewChannel: false });
-    await interaction.reply({ content: '🙈 Soba je sakrivena.' });
+    room.hidden = !room.hidden;
+    saveRoom(channel.id, room);
+
+    if (room.hidden) {
+      await denyEveryone(channel, interaction.guild, { view: true });
+    } else {
+      await allowEveryone(channel, interaction.guild, { view: true }).catch(() => {});
+    }
+
+    await interaction.reply({
+      content: room.hidden
+        ? '🙈 Soba je **sakrivena** — niko je ne vidi u listi osim onih koji su unutra.'
+        : '👁️ Soba je **vidljiva** svima.'
+    });
+
+    await refreshPanel(channel, room);
     return true;
   }
 
-  if (action === 'show') {
-    await channel.permissionOverwrites.edit(interaction.guild.roles.everyone, { ViewChannel: true });
-    await interaction.reply({ content: '👁️ Soba je vidljiva.' });
-    return true;
-  }
-
+  // ---------- OBRIŠI ----------
   if (action === 'delete') {
     saveRoom(channel.id, null);
     await interaction.reply({ content: '🗑️ Soba se briše...' });
@@ -241,6 +409,7 @@ async function handleButton(interaction) {
     return true;
   }
 
+  // ---------- PREIMENUJ ----------
   if (action === 'rename') {
     const modal = new ModalBuilder()
       .setCustomId(`tv:renamemodal:${channel.id}`)
@@ -260,6 +429,7 @@ async function handleButton(interaction) {
     return true;
   }
 
+  // ---------- LIMIT ----------
   if (action === 'limit') {
     const modal = new ModalBuilder()
       .setCustomId(`tv:limitmodal:${channel.id}`)
@@ -282,9 +452,161 @@ async function handleButton(interaction) {
   return true;
 }
 
+// ---------- Select meniji (izbaci / dozvoli / prenesi) ----------
+
+async function handleSelect(interaction) {
+  const action = interaction.customId.split(':')[1];
+  const channel = interaction.channel;
+  const room = getRoom(channel.id);
+
+  if (!room) {
+    await interaction.reply({
+      content: '❌ Ovo radi samo u privremenim sobama.',
+      flags: MessageFlags.Ephemeral
+    });
+    return true;
+  }
+
+  if (!isOwnerOrStaff(interaction, room)) {
+    await interaction.reply({
+      content: '❌ Samo vlasnik sobe (ili osoblje) može da upravlja članovima.',
+      flags: MessageFlags.Ephemeral
+    });
+    return true;
+  }
+
+  const targetIds = interaction.values ?? [];
+
+  // ---------- IZBACI ----------
+  if (action === 'kick') {
+    await interaction.deferReply({ flags: MessageFlags.Ephemeral });
+
+    const kicked = [];
+    const failed = [];
+
+    for (const id of targetIds) {
+      if (id === room.ownerId) {
+        failed.push(`<@${id}> (vlasnik)`);
+        continue;
+      }
+      if (id === interaction.client.user.id) {
+        failed.push(`<@${id}> (bot)`);
+        continue;
+      }
+
+      const member = channel.members.get(id);
+      if (!member) {
+        failed.push(`<@${id}> (nije u sobi)`);
+        continue;
+      }
+
+      try {
+        await member.voice.disconnect('Izbačen iz temp sobe');
+        kicked.push(`<@${id}>`);
+      } catch {
+        failed.push(`<@${id}>`);
+      }
+    }
+
+    const lines = [];
+    if (kicked.length) lines.push(`🚪 Izbačen/a: ${kicked.join(', ')}`);
+    if (failed.length) lines.push(`⚠️ Nije uspelo: ${failed.join(', ')}`);
+    if (!lines.length) lines.push('Nema promena.');
+
+    await interaction.editReply({ content: lines.join('\n') });
+    await refreshPanel(channel, room);
+    return true;
+  }
+
+  // ---------- DOZVOLI ----------
+  if (action === 'permit') {
+    await interaction.deferReply({ flags: MessageFlags.Ephemeral });
+
+    const allowed = new Set(room.allowed ?? []);
+    const permitted = [];
+
+    for (const id of targetIds) {
+      try {
+        await channel.permissionOverwrites.edit(id, {
+          ViewChannel: true,
+          Connect: true,
+          Speak: true,
+          SendMessages: true
+        });
+        allowed.add(id);
+        permitted.push(`<@${id}>`);
+      } catch {
+        // ignore
+      }
+    }
+
+    room.allowed = [...allowed];
+    saveRoom(channel.id, room);
+
+    await interaction.editReply({
+      content: permitted.length
+        ? `✅ Sada mogu da uđu: ${permitted.join(', ')}`
+        : '⚠️ Nisam uspeo da dozvolim pristup.'
+    });
+
+    await refreshPanel(channel, room);
+    return true;
+  }
+
+  // ---------- PRENESI VLASNIŠTVO ----------
+  if (action === 'transfer') {
+    await interaction.deferReply({ flags: MessageFlags.Ephemeral });
+
+    const newOwnerId = targetIds[0];
+    const newOwner = await interaction.guild.members.fetch(newOwnerId).catch(() => null);
+
+    if (!newOwner) {
+      return interaction.editReply({ content: '❌ Korisnik nije pronađen.' });
+    }
+
+    if (newOwner.id === room.ownerId) {
+      return interaction.editReply({ content: '❌ Taj korisnik je već vlasnik sobe.' });
+    }
+
+    const oldOwnerId = room.ownerId;
+    room.ownerId = newOwner.id;
+    saveRoom(channel.id, room);
+
+    await channel.permissionOverwrites
+      .edit(newOwner.id, {
+        ViewChannel: true,
+        Connect: true,
+        Speak: true,
+        SendMessages: true,
+        ManageChannels: true,
+        MoveMembers: true
+      })
+      .catch(() => {});
+
+    await channel.permissionOverwrites
+      .edit(oldOwnerId, { ManageChannels: false, MoveMembers: false })
+      .catch(() => {});
+
+    await interaction.editReply({ content: `👑 Vlasništvo preneseno na <@${newOwner.id}>.` });
+    await refreshPanel(channel, room);
+    return true;
+  }
+
+  return true;
+}
+
+// ---------- Modali ----------
+
 async function handleRenameModal(interaction, channelId) {
   const room = getRoom(channelId);
   if (!room) return interaction.reply({ content: '❌ Soba ne postoji.', flags: MessageFlags.Ephemeral });
+
+  if (!isOwnerOrStaff(interaction, room)) {
+    return interaction.reply({
+      content: '❌ Samo vlasnik može da preimenuje sobu.',
+      flags: MessageFlags.Ephemeral
+    });
+  }
 
   const name = interaction.fields.getTextInputValue('ime').trim().slice(0, 90);
   const channel = interaction.guild.channels.cache.get(channelId);
@@ -297,6 +619,13 @@ async function handleRenameModal(interaction, channelId) {
 async function handleLimitModal(interaction, channelId) {
   const room = getRoom(channelId);
   if (!room) return interaction.reply({ content: '❌ Soba ne postoji.', flags: MessageFlags.Ephemeral });
+
+  if (!isOwnerOrStaff(interaction, room)) {
+    return interaction.reply({
+      content: '❌ Samo vlasnik može da menja limit.',
+      flags: MessageFlags.Ephemeral
+    });
+  }
 
   const parsed = Number(interaction.fields.getTextInputValue('limit'));
   if (!Number.isFinite(parsed) || parsed < 0 || parsed > 99) {
@@ -319,4 +648,14 @@ async function handleLimitModal(interaction, channelId) {
   return true;
 }
 
-module.exports = { handleVoiceState, handleButton, handleRenameModal, handleLimitModal };
+module.exports = {
+  handleVoiceState,
+  handleButton,
+  handleSelect,
+  handleRenameModal,
+  handleLimitModal,
+  buildPanelEmbed,
+  buildPanelRows,
+  getRoom,
+  saveRoom
+};
